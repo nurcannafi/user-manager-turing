@@ -42,10 +42,14 @@ public class UserRepository {
                     user.getStatus());
             user.setId(generatedId);
         } else {
-            String sql = "UPDATE users SET username = ?, password = ?, status = ? WHERE id = ?";
-            jdbcTemplate.update(sql, user.getUsername(), user.getPassword(), user.getStatus(), user.getId());
+            update(user);
         }
         return user;
+    }
+
+    public void update(UserEntity user) {
+        String sql = "UPDATE users SET username = ?, password = ?, status = ? WHERE id = ?";
+        jdbcTemplate.update(sql, user.getUsername(), user.getPassword(), user.getStatus(), user.getId());
     }
 
     public Optional<UserEntity> findByUsername(String username) {

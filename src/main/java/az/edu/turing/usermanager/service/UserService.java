@@ -10,7 +10,6 @@ import az.edu.turing.usermanager.model.dto.UserDto;
 import az.edu.turing.usermanager.model.dto.request.CreateUserRequest;
 import az.edu.turing.usermanager.model.dto.request.UpdateUserRequest;
 import az.edu.turing.usermanager.model.enums.UserStatus;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +61,7 @@ public class UserService {
         return userMapper.toDto(updatedUserEntity);
     }
 
-    public UserDto updateStatus(Long id, @Valid UserStatus status) {
+    public UserDto updateStatus(Long id, UserStatus status) {
         return userRepository.findById(id).map(userEntity -> {
                     userEntity.setStatus(status);
                     UserEntity updatedUserEntity = userRepository.save(userEntity);
