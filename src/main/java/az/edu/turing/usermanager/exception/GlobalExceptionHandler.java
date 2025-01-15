@@ -3,11 +3,13 @@ package az.edu.turing.usermanager.exception;
 import az.edu.turing.usermanager.model.constant.ErrorCode;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -52,8 +54,26 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<GlobalErrorResponse> handleMethodArgumentNotValidException
+            (MethodArgumentNotValidException e) {
+        logError(e);
+        String validationErrors = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
 
-    private static void logError(Exception e){
+        return ResponseEntity.status(BAD_REQUEST)
+                .body(GlobalErrorResponse.builder()
+                        .errorCode(ErrorCode.INVALID_INPUT)
+                        .errorMessage("Validation failed: " + validationErrors)
+                        .requestId(UUID.randomUUID())
+                        .timestamp(LocalDateTime.now())
+                        .build());
+    }
+
+    private static void logError(Exception e) {
         log.error("{} happened: {}", e.getClass().getSimpleName(), e.getMessage());
     }
 }
